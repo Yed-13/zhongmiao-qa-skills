@@ -1,4 +1,4 @@
 interface:
   display_name: "众妙 PR 审核 · 含浏览器复现"
-  short_description: "核对 PR 声称的修复是否成立、有无本次引入的回归，产出可转发的审核文案"
+  short_description: "核对 PR 声称的修复是否成立、有无本次引入的回归（含浏览器复现），输出可转发的审核文案和 GitHub 下一步"
   default_prompt: "Use $zhongmiao-review to review the given courseware-pro-mvp pull request and draft forwardable feedback."

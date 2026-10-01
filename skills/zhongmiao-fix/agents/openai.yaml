@@ -1,4 +1,4 @@
 interface:
   display_name: "众妙问题修复 · 含浏览器复测"
-  short_description: "领题查重、复现、最小修复、分层验证，交付 Draft PR 正文和发给 reviewer 的话"
+  short_description: "领题查重、复现、最小修复、分层验证和浏览器复测，输出 PR 正文和 reviewer 话术后询问是否 commit / 开 PR"
   default_prompt: "Use $zhongmiao-fix to fix the assigned courseware-pro-mvp issue and prepare the Draft PR materials."

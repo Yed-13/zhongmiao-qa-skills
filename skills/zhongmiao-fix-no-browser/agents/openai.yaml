@@ -1,4 +1,4 @@
 interface:
   display_name: "众妙问题修复 · 不做浏览器复测"
-  short_description: "服务端/脚本/校验器/测试类修复：查重、最小修复、分层测试，交付 PR 正文和 reviewer 话术并写明未做浏览器复测"
+  short_description: "脚本、校验器、测试类修复：分层测试后输出 PR 正文和 reviewer 话术，再问是否 commit / 开 PR"
   default_prompt: "Use $zhongmiao-fix-no-browser to fix the assigned courseware-pro-mvp issue without browser retesting and prepare the Draft PR materials."

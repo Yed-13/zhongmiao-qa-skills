@@ -1,6 +1,6 @@
 ---
 name: zhongmiao-review-no-browser
-description: 不做浏览器复测的快速 PR 审核，用于众妙 courseware-pro-mvp（/tutor）同学或 agent 的 PR：只读代码、读实际题目内容、独立重算答案、本地复跑测试、试合并，产出可直接转发的审核文案，并写明「未做浏览器复测」。适合服务端脚本、校验器、提示词、测试、文档、内容数据类 PR，或用户说「快速审一下」「不用开浏览器」「只看代码」「先过一遍」。PR 声称修好的是学生能看到的画面/交互问题时，应改用含浏览器复现的 zhongmiao-review，或在结论里限定「画面效果未独立复现」。
+description: 不做浏览器复测的快速 PR 审核，用于众妙 courseware-pro-mvp（/tutor）同学或 agent 的 PR：只读代码、读实际题目内容、独立重算答案、本地复跑测试、试合并，只输出可直接转发的审核文案（写明「未做浏览器复测」），并告诉用户在 GitHub 上下一步该点什么；全程不打开 GitHub 网页。适合服务端脚本、校验器、提示词、测试、文档、内容数据类 PR，或用户说「快速审一下」「不用开浏览器」「只看代码」「先过一遍」。PR 声称修好的是学生能看到的画面/交互问题时，应改用含浏览器复现的 zhongmiao-review，或在结论里限定「画面效果未独立复现」。
 ---
 
 # 众妙 PR 审核 · 不做浏览器复测
@@ -19,7 +19,7 @@ description: 不做浏览器复测的快速 PR 审核，用于众妙 courseware-
 ## 步骤
 
 1. **拉代码**：`bash <review>/scripts/fetch_pr.sh <主仓库目录> <PR号>`，记下 head SHA、合并基点、试合并结果。
-2. **读 PR 页面**（已登录的浏览器里只读 PR 页面不算浏览器复测）：最新正文、评论、CI 结论；同一编号有没有重复 PR；列出承诺清单。
+2. **拿到 PR 说明**：用用户贴来的最新 PR 正文（没贴就请用户贴，或先读提交说明 `git log --format=%B <基点>..pr/<号>`）；CI 结论和已有评论也请用户贴来，没有就写「CI：未查看」。查同一编号有没有重复 PR（`git log upstream/main --grep=<编号>`，或 zhongmiao-fix 的 `check_issue_status.sh`）；列出承诺清单。
 3. **审实际内容**（主体）：逐项检查见 `<review>/references/review-checklist.md`，先过第 0 节「最常抓到的漏洞」。
    - 代码：改动和根因对得上、调用方全覆盖、无多改漏改。
    - 题目内容：`node <review>/scripts/unit_review.mjs dump|scan … --base-ref <合并基点>`，逐题读、独立重算，[原有] 不算本次引入。
@@ -27,5 +27,5 @@ description: 不做浏览器复测的快速 PR 审核，用于众妙 courseware-
    - 写库脚本：默认只预览、备份、读回、走 `patchUnit`、版本条件。
 4. **复跑测试**：PR 自带专项（报实际数量）、相关回归、必要时自己的独立探针和变异自检。环境问题和断言失败分开记。
 5. **写文案**：格式见 `<review>/references/feedback-templates.md`。「测试结果」最后一行写 **未做浏览器复测**；可见改动加一句画面部分以作者截图为准。
-6. **GitHub 动作**：Ready for review（互审签名）、Approve、只生成文案三者分开；用户明确要求才在 GitHub 上操作。可见改动没做浏览器复测时，点 Ready 之前提醒用户这一点，由用户决定。
+6. **告诉用户下一步**（不在 GitHub 上操作）：通过 → 用户把文案发给作者，并自己在 PR 页面点 Ready for review（互审签名）；需修改 → 保持 Draft、把文案发给作者。可见改动没做浏览器复测时，提醒用户点 Ready 之前考虑这一点，由用户决定。
 7. **收尾**：删掉审核目录。作者更新后复审，只核上次的问题和新增改动。

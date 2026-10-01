@@ -1,6 +1,6 @@
 ---
 name: zhongmiao-fix-no-browser
-description: 不做浏览器复测的快速修复流程，用于众妙 courseware-pro-mvp（/tutor）里学生看不到画面变化的改动：服务端脚本、内容更新脚本（默认只预览）、生成提示词和校验器、测试、文档、判分或数据逻辑，或者用户明确说「不用开浏览器」「先不测页面」「只改代码和测试」。同样按团队流程领题查重、建独立 worktree、最小修复、分层测试，最后交付 PR 标题正文、发给 reviewer 的话和交接状态，并在其中写明「未做浏览器复测」。改动会让学生那一屏发生变化（渲染、布局、遮挡、交互、可见文案）时，应改用含浏览器复测的 zhongmiao-fix。
+description: 不做浏览器复测的快速修复流程，用于众妙 courseware-pro-mvp（/tutor）里学生看不到画面变化的改动：服务端脚本、内容更新脚本（默认只预览）、生成提示词和校验器、测试、文档、判分或数据逻辑，或者用户明确说「不用开浏览器」「先不测页面」「只改代码和测试」。同样按团队流程领题查重、建独立 worktree、最小修复、分层测试，最后只输出文字（PR 标题正文、发给 reviewer 的话、交接状态，写明「未做浏览器复测」），再问用户要不要 commit、要不要开 PR；全程不打开 GitHub 网页。改动会让学生那一屏发生变化（渲染、布局、遮挡、交互、可见文案）时，应改用含浏览器复测的 zhongmiao-fix。
 ---
 
 # 众妙问题修复 · 不做浏览器复测
@@ -19,13 +19,13 @@ description: 不做浏览器复测的快速修复流程，用于众妙 coursewar
 
 ## 步骤
 
-1. **授权边界**：同 `zhongmiao-fix`。做到用户授权的那一步；不合并、不部署、不写生产库；「准备 PR」≠「提交 PR」。
+1. **边界**：同 `zhongmiao-fix`。不打开 GitHub 网页（PR 状态、CI 请用户看了告诉你）；不合并、不部署、不写生产库；commit / 推送要用户确认，开 PR 由用户自己做。
 2. **领题和查重**：
    ```bash
    python3 <fix>/scripts/read_issue_sheet.py <任务表.xlsx> --code <编号...>
    bash    <fix>/scripts/check_issue_status.sh <主仓库目录> <编号...>
    ```
-   任务表状态常落后：查 main 提交和 GitHub open PR，已修好就停下告诉用户。细节见 `<fix>/references/claim-and-setup.md`。
+   任务表状态常落后：脚本会查 main 提交并用 git 拉最近的 PR 提交；命中「未合并」的 PR 请用户在 GitHub 上确认状态。已修好就停下告诉用户。细节见 `<fix>/references/claim-and-setup.md`。
 3. **建独立工作目录**：`bash <fix>/scripts/new_task_worktree.sh <主仓库目录> <任务名>`，记基线。
 4. **复现**：用数据和测试复现，而不是页面——写一个在改前代码上失败的测试，或用真实快照跑出错误结果，记下命令和输出。
 5. **最小修复**：做法见 `<fix>/references/fix-approaches.md`。重点：
@@ -34,11 +34,9 @@ description: 不做浏览器复测的快速修复流程，用于众妙 coursewar
    - 写生产库只走 `patchUnit`，默认只预览；
    - 常量有前后端镜像的，一起改。
 6. **验证（不含浏览器）**：先红后绿；相关回归；按改动跑前端 `npm test` / 服务端 `npm run test:pipeline` / 构建 / Guardian。命令和常见坑见 `<fix>/references/verification.md`。题目内容类改动用审核技能的 `unit_review.mjs scan`（`zhongmiao-review/scripts/`）对照合并基点自查。
-7. **交给用户审阅**，再按授权提交和开 Draft PR（`<fix>/references/pr-and-handoff.md`）。不加 AI 协作者署名；不要自己点 Ready for review。
-   - 没改 `frontend/` 的非测试文件：截图检查不会触发，正文照常写。
-   - 改了 `frontend/` 但确实没有可见变化：正文写一行 `NO-SCREENSHOT: <具体理由>`。
+7. **截图检查提醒**：没改 `frontend/` 的非测试文件时截图检查不会触发；改了 `frontend/` 但确实没有可见变化时，正文写一行 `NO-SCREENSHOT: <具体理由>`。
 
-## 交付物（三样都给）
+## 交付物（三样文字都给），然后问下一步
 
 模板在 `<fix>/references/pr-and-handoff.md`，在此基础上：
 
@@ -47,3 +45,5 @@ description: 不做浏览器复测的快速修复流程，用于众妙 coursewar
 3. **交接状态**：已测 / 未测里明确「浏览器：未测」；如果之后需要补浏览器复测，写进下一步。
 
 不要把「测试通过」写成「页面已修好」。
+
+输出完三段文字后，按 `<fix>/references/pr-and-handoff.md` 第 3 节问用户：先 commit / commit 并推送后自己开 Draft PR / 暂不提交。用户确认才执行；commit 用用户自己的 git 身份，不加 AI 署名；提醒用户不要自己点 Ready for review。
