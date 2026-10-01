@@ -1,0 +1,11 @@
+/* 本地 QA 首页的中性样式。应用的全局 CSS 会改 body/h1 的样式，所以这里用 !important 盖回来。 */
+body:has(.qa-panel){margin:0;background:#f6f3ed!important;color:#292b35!important;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+.qa-panel{max-width:880px;margin:0 auto;padding:32px 20px;line-height:1.7;color:#292b35!important;background:#f6f3ed!important;min-height:100vh}
+.qa-panel h1,.qa-panel h2{color:#292b35!important;-webkit-text-fill-color:#292b35!important;background:none!important;text-shadow:none!important}
+.qa-panel h1{font-size:28px;margin:8px 0}.qa-panel h2{font-size:19px;margin:8px 0}
+.qa-panel p,.qa-panel details{color:#454954!important}
+.qa-panel section{padding:18px;background:#fff;border:1px solid #e6e0d5;border-radius:16px;margin:16px 0}
+.qa-links{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.qa-links a{display:inline-block;padding:8px 14px;border-radius:10px;background:#35564e;color:#fff!important;text-decoration:none}
+.qa-return{position:fixed;right:12px;bottom:10px;z-index:9999;background:#fff8ed;color:#35564e;padding:6px 12px;border-radius:10px;font-size:13px;text-decoration:none}
+@media(max-width:400px){.qa-panel{padding:16px 12px}.qa-panel h1{font-size:24px}}

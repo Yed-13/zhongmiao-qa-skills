@@ -1,0 +1,7 @@
+{
+  "name": "zhongmiao-qa",
+  "description": "courseware-pro-mvp（/tutor 初中数学 3D 课件）QA 工作流：修（zhongmiao-fix / zhongmiao-fix-no-browser）按团队流程修问题并交付 Draft PR 正文和发给 reviewer 的话；审（zhongmiao-review / zhongmiao-review-no-browser）审核同学的 PR 并产出可转发的审核文案。两种版本区别在是否做浏览器复测。",
+  "version": "1.0.0",
+  "author": { "name": "Yed-13" },
+  "keywords": ["qa", "code-review", "pull-request", "courseware-pro-mvp"]
+}

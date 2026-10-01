@@ -1,0 +1,4 @@
+interface:
+  display_name: "众妙 PR 审核 · 不做浏览器复测"
+  short_description: "只审代码、内容和测试：核对修复是否成立、有无回归，产出写明未做浏览器复测的转发文案"
+  default_prompt: "Use $zhongmiao-review-no-browser to review the given courseware-pro-mvp pull request without browser reproduction and draft forwardable feedback."

@@ -1,0 +1,12 @@
+{
+  "name": "zhongmiao-qa-skills",
+  "description": "众妙 courseware-pro-mvp QA 团队的修复与审核技能",
+  "owner": { "name": "Yed-13" },
+  "plugins": [
+    {
+      "name": "zhongmiao-qa",
+      "source": "./",
+      "description": "修 + 审，各含「浏览器复测 / 不做浏览器复测」两个版本"
+    }
+  ]
+}

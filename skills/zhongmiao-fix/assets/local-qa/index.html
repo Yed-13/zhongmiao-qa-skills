@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>本地 QA</title>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  /* ?render=2d：让 WebGL 拿不到上下文，课件走无 WebGL 的 2D 降级路径。 */
+  if (new URLSearchParams(location.search).get('render') === '2d') {
+    const orig = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
+      return /webgl/i.test(type) ? null : orig.call(this, type, ...args);
+    };
+  }
+</script>
+<script type="module" src="/local-qa/main.jsx"></script>
+</body>
+</html>
