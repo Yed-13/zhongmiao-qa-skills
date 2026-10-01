@@ -1,6 +1,6 @@
 # 众妙 QA 技能：修复与审核
 
-给参与 courseware-pro-mvp（/tutor 初中数学 3D 课件）QA 的同学用。**Claude Code 和 Codex 都能用。**
+给参与 courseware-pro-mvp（/tutor 初中数学 3D 课件）QA 的同学用。**Claude Code 和 Codex 都能用（请使用Artificial Analysis智力评分大于45的模型）。**
 
 > **全程不用打开终端。** 你只需要在 Claude Code 或 Codex 的对话框里复制粘贴、输入斜杠命令。
 > agent 要在你电脑上运行命令时会先问你，点「允许」就行。
