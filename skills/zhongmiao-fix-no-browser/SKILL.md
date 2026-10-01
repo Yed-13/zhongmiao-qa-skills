@@ -7,6 +7,10 @@ description: 不做浏览器复测的快速修复流程，用于众妙 coursewar
 
 这是 `zhongmiao-fix` 的轻量版：流程、标准和交付物都一样，**只是不在浏览器里复现、不截图**。共享的参考文件和脚本在同级的 `zhongmiao-fix/` 目录（插件安装或两个目录一起复制时都在），下文写作 `<fix>/…`。
 
+## 开工前：环境没准备好就先用 zhongmiao-setup
+
+找不到 courseware-pro-mvp 仓库、没有 upstream、没装依赖，或命令卡着不动时，先按同级 `zhongmiao-setup` 技能检查和准备环境（`bash ../zhongmiao-setup/scripts/setup_check.sh`），处理完再回来。用户不需要自己在终端操作任何东西：所有命令由你运行，动手前征得同意。
+
 ## 先判断能不能不开浏览器
 
 | 改动 | 能否用本技能 |

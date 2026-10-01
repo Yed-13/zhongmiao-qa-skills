@@ -11,6 +11,10 @@ description: 含浏览器复现的完整 PR 审核。审核众妙 courseware-pro
 
 审核要回答的只有一件事：**这个 PR 声称解决的问题，在它实际提交的内容里解决了没有；有没有因为这次改动坏掉别的东西。** 产出是一段能直接转发的文字，不是长篇审计报告。
 
+## 开工前：环境没准备好就先用 zhongmiao-setup
+
+找不到 courseware-pro-mvp 仓库、没有 upstream、没装依赖，或命令卡着不动时，先按同级 `zhongmiao-setup` 技能检查和准备环境（`bash ../zhongmiao-setup/scripts/setup_check.sh`），处理完再回来。用户不需要自己在终端操作任何东西：所有命令由你运行，动手前征得同意。
+
 ## 审核口径（动手前先对齐）
 
 每条发现都要能归进下面一类，并且被问到时说得出是哪一类：

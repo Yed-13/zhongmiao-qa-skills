@@ -1,0 +1,4 @@
+interface:
+  display_name: "众妙 QA 环境准备"
+  short_description: "替你做所有终端操作：检查和准备环境，更新、检查或卸载众妙 QA 技能"
+  default_prompt: "Use $zhongmiao-setup to check and prepare my courseware-pro-mvp QA environment."

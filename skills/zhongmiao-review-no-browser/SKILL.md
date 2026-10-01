@@ -7,6 +7,10 @@ description: 不做浏览器复测的快速 PR 审核，用于众妙 courseware-
 
 这是 `zhongmiao-review` 的轻量版：审核口径、步骤和文案格式都一样，**只是不在本地起页面复现**。共享的参考文件和脚本在同级的 `zhongmiao-review/` 目录，下文写作 `<review>/…`。
 
+## 开工前：环境没准备好就先用 zhongmiao-setup
+
+找不到 courseware-pro-mvp 仓库、没有 upstream、没装依赖，或命令卡着不动时，先按同级 `zhongmiao-setup` 技能检查和准备环境（`bash ../zhongmiao-setup/scripts/setup_check.sh`），处理完再回来。用户不需要自己在终端操作任何东西：所有命令由你运行，动手前征得同意。
+
 ## 审核口径（与完整版相同）
 
 只写三类：(a) 声称完成但没完成；(b) 任务范围内但本次仍保留（写「本次仍保留」）；(c) 本次 diff 引入的回归、数学错误、正常操作失败。(d) 自己延伸的建议、main 上原有的问题、假想的异常输入不写进转发文案。被问到时说得出每条属于哪一类。

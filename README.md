@@ -1,148 +1,186 @@
 # 众妙 QA 技能：修复与审核
 
-给参与 courseware-pro-mvp（/tutor 初中数学 3D 课件）QA 的同学用的 agent 技能，**Claude Code 和 Codex 都能用**。装好之后，你直接用中文说「把这个问题修了」「审核一下这个 PR」，agent 就会按团队约定的流程一步步做，最后给你可以直接粘贴、转发的文字。
+给参与 courseware-pro-mvp（/tutor 初中数学 3D 课件）QA 的同学用。**Claude Code 和 Codex 都能用。**
+
+> **全程不用打开终端。** 你只需要在 Claude Code 或 Codex 的对话框里复制粘贴、输入斜杠命令。
+> agent 要在你电脑上运行命令时会先问你，点「允许」就行。
 
 ---
 
-## 一、安装
+## 第 1 步：安装（只做一次）
 
-### 安装前先确认
-
-- 本机有 courseware-pro-mvp 的克隆，并且能 `git fetch upstream`：`origin` 指向你自己的 fork，`upstream` 指向教授仓库。没有 upstream 就先加：
-  ```bash
-  git remote add upstream <教授仓库的地址>
-  ```
-- 装了 `git`、Node 18 以上（建议和 CI 一致）、Python 3（只用来读任务表 Excel，只用标准库）。
-- 不需要 `gh` 命令行，也不需要在浏览器里登录 GitHub。
-
-### 方式 A：Claude Code 插件安装（推荐，之后可以一键更新）
-
-在 Claude Code 里依次输入：
+打开 Claude Code 或 Codex，新建一个对话，**复制下面整段**发送：
 
 ```text
-/plugin marketplace add Yed-13/zhongmiao-qa-skills
-/plugin install zhongmiao-qa@zhongmiao-qa-skills
+请帮我安装「众妙 QA 技能」。所有命令都由你来运行，我不会自己操作终端：
+1. 如果 ~/zhongmiao-qa-skills 不存在，运行 git clone https://github.com/Yed-13/zhongmiao-qa-skills.git ~/zhongmiao-qa-skills；如果已经存在，进去运行 git pull --ff-only。
+2. 运行 bash ~/zhongmiao-qa-skills/install.sh，把技能同时装到 Claude Code 和 Codex。
+3. 用一两句话告诉我装好了没有、装了哪几个技能，并提醒我接下来要新开一个对话。
 ```
 
-- 第一行把这个仓库登记为插件来源，第二行安装其中的 `zhongmiao-qa` 插件（四个技能都在里面）。
-- 装好后**新开一个会话**。在输入框里打 `/zhongmiao`，能看到 `/zhongmiao-qa:zhongmiao-fix` 等四个命令，就说明装好了。
-- 更新：`/plugin marketplace update zhongmiao-qa-skills`，或在 `/plugin` → Marketplaces 里打开自动更新。
-- 卸载：`/plugin uninstall zhongmiao-qa@zhongmiao-qa-skills`。
-
-### 方式 B：脚本安装（Claude Code 和 Codex 都适用）
-
-```bash
-git clone https://github.com/Yed-13/zhongmiao-qa-skills.git
-cd zhongmiao-qa-skills
-bash install.sh          # 同时装到 Claude Code（~/.claude/skills）和 Codex（~/.codex/skills）
-```
-
-- 只装一边：`bash install.sh claude` 或 `bash install.sh codex`（设置了 `CODEX_HOME` 时装到 `$CODEX_HOME/skills`）。
-- 更新：在这个目录里 `git pull`，再执行一次 `bash install.sh`（会覆盖旧版本）。
-- 卸载：`bash install.sh uninstall`。
-- 装好后**新开一个会话**：
-  - Claude Code 里输入 `/zhongmiao`，能看到 `/zhongmiao-fix` 等四个命令；
-  - Codex 里可以直接说「用 $zhongmiao-review 审核 PR 1234」。
-
-### 方式 C：手动复制
-
-把 `skills/` 下的**四个** `zhongmiao-*` 目录一起复制到：
-- Claude Code：`~/.claude/skills/`
-- Codex：`~/.codex/skills/`
-
-不要只复制其中一个：两个「不做浏览器复测」的版本会用到完整版目录里的参考文件和脚本。
-
-> 也可以复制到某个项目里的 `.claude/skills/`（Claude Code）或 `.agents/skills/`（Codex），只在那个项目里生效。不要把它们提交进教授的仓库，除非团队同意。
+看到「装好了」之后，**关掉这个对话，新开一个**。技能只在新开的对话里生效。
 
 ---
 
-## 二、四个技能分别做什么
+## 第 2 步：新开一个对话，输入 `/zhongmiao-setup`（第一次用之前做一次）
 
-「修」和「审」各有两个版本，区别只在**是否在浏览器里复测**。不确定用哪个时直接说需求，agent 会按改动类型选；也可以点名。
-
-| 技能 | 适用场景 | 最后给你什么 |
-|---|---|---|
-| **zhongmiao-fix**<br>修 · 含浏览器复测 | 学生能看到的问题：画面、布局、遮挡、交互、可见文案 | PR 标题和正文、发给 reviewer 的一段话、交接状态（含修前修后截图的位置），然后问你要不要 commit / 开 PR |
-| **zhongmiao-fix-no-browser**<br>修 · 不做浏览器复测 | 服务端脚本、内容更新脚本、校验器、提示词、测试、文档；或你说「先不测页面」 | 同上，文字里写明「未做浏览器复测」 |
-| **zhongmiao-review**<br>审 · 含浏览器复现 | 审核修了学生可见问题的 PR | 可直接转发的审核文案（通过 / 需修改 / 复审），然后告诉你在 GitHub 上该点什么 |
-| **zhongmiao-review-no-browser**<br>审 · 不做浏览器复测 | 「快速审一下」「只看代码」；或 PR 只涉及脚本、校验器、测试、文档 | 同上，结论写明「未做浏览器复测」；画面类修复只下到「代码与测试层面」 |
-
-### 修复（zhongmiao-fix）具体会做
-
-1. **领题和查重**：连底色一起读任务表（例如蓝底排除行）；用 git 查 main 上和最近 300 个 PR 里是否已经有人修过同一个编号。已经修好就停下来告诉你。
-2. **建独立工作目录**：从最新 upstream/main 建 worktree，一个问题一个分支。
-3. **复现和定位**：记下课、档、题、操作、实际和预期，找到出错的是哪一层（数据、接口、渲染、判分）。内测报告先判断是不是真 bug。
-4. **最小修复**：只改和这个问题有关的地方；中英文同步；遮挡问题让相机让位，不把 3D 场景缩小。
-5. **分层验证**：
-   - 测试先红后绿：改前失败，改后通过；
-   - 跑相关回归、构建和 Guardian；
-   - 完整版还会在本地真实组件上用 1280 / 390 / 320 三种宽度复测并截图。
-6. **输出文字**：PR 标题和正文（按仓库 PR 模板）、发给 reviewer 的话、交接状态。
-7. **问你下一步**：先 commit / commit 并推送后你自己开 Draft PR / 暂不提交。你确认了才执行；不加 AI 署名；提醒你不要自己点 Ready for review。
-
-### 审核（zhongmiao-review）具体会做
-
-1. **拉取 PR 代码**：只用 git 拉到独立的只读目录，记下审的是哪个版本，以及和最新 main 合并有没有冲突。
-2. **列出 PR 承诺修了什么**：用你贴来的 PR 正文和 CI 结果，和任务表原文对照，并检查同一编号有没有重复的 PR。
-3. **审实际内容**：
-   - 代码：改动和根因对不对得上、调用方是否都覆盖。
-   - 题目：逐题独立重算答案；查讲解和第 1 题是否同一概念（铁律 17）、示范是不是某道原题、有没有重复题、前提是否齐全。
-   - 校验器、写库脚本：校验器查的是内容还是标签；写库脚本是否默认只预览、有备份和读回。
-4. **自己复跑测试**，并把旧代码放回去，看测试会不会变红。
-5. **浏览器复现**（完整版）：按原来的复现步骤，再试答错重试、换题、窄屏。
-6. **输出审核文案**：只写这次提交里的问题，不写 main 上原有的问题，也不写自己延伸的建议。
-7. **告诉你在 GitHub 上下一步做什么**：通过就由你点 Ready for review（这就是互审签名）；需修改就保持 Draft，把文案发给作者。
-
-### 这些技能不会做的事
-
-- **不打开 GitHub 网页**：不开 PR、不点按钮、不看 CI。PR 正文和 CI 结果需要时请你贴给它。
-- 不合并、不部署、不写生产数据库，不替别人签审核。
-- 不在没问你的情况下 commit 或 push。
-
----
-
-## 三、怎么用（示例）
+1. 新开一个对话。
+2. 在输入框里打 `/zhongmiao`，会弹出五个命令。选 **`/zhongmiao-setup`**（或者直接打完整命令）。
+   - 用 Codex 的同学：把斜杠 `/` 换成 `$`，输入 **`$zhongmiao-setup`**。下面所有命令都一样换。
+3. 在命令后面空一格，写上你的 GitHub 用户名，然后发送。例如：
 
 ```text
-根据任务表修复 B07（表在 ~/work/共同问题汇总.xlsx），修完把 PR 文字准备好
-这个改动只动了服务端脚本，用不做浏览器复测的版本修一下 <编号>
-审核一下 PR 1234，正文我贴在下面：……
-快速审一下 PR 1234，只看代码
+/zhongmiao-setup 我的 GitHub 用户名是 <你的 GitHub 用户名>，帮我把环境准备好
 ```
+
+接下来它会：
+
+1. 检查你电脑上的东西，用大白话告诉你哪些已经好了、哪些要处理；
+2. 把要做的事列成一个清单，**等你回复「可以」再动手**；
+3. 帮你下载 courseware-pro-mvp（你自己 fork 的那一份）、连上教授的仓库、安装依赖、检查会让程序卡住的 iCloud 问题；
+4. 问你以后提交代码用哪个名字和邮箱。
+
+如果弹出 GitHub 登录窗口，用你自己的账号登录。看到它说「环境好了」，就可以开始用了。
 
 ---
 
-## 四、可以单独用的脚本
+## 第 3 步：以后每次怎么用
 
-```bash
-# 连底色一起读任务表里的某几个编号
-python3 skills/zhongmiao-fix/scripts/read_issue_sheet.py 共同问题汇总.xlsx --code <编号> <编号>
+**每做一件新的事，都新开一个对话**，输入对应的斜杠命令，命令后面写上编号或 PR 号。
 
-# 这几个编号在 main 上和最近的 PR 里是不是已经有人修了（只用 git）
-bash skills/zhongmiao-fix/scripts/check_issue_status.sh ~/work/courseware-pro-mvp <编号> <编号>
+### 先选命令：我该用哪个？
 
-# 为一个问题建独立 worktree（依赖一致时自动软链 node_modules）
-bash skills/zhongmiao-fix/scripts/new_task_worktree.sh ~/work/courseware-pro-mvp <任务名>
+| 你要做的事 | 输入的命令 |
+|---|---|
+| 修一个问题，学生在页面上能看到（画面、布局、遮挡、按钮、文字） | **`/zhongmiao-fix`** |
+| 修一个问题，只改脚本、测试、文档，页面不会变 | **`/zhongmiao-fix-no-browser`** |
+| 同学让你审 PR，他修的是页面上能看到的问题 | **`/zhongmiao-review`** |
+| 同学让你审 PR，只改了脚本、测试、文档；或者你只想快速过一遍 | **`/zhongmiao-review-no-browser`** |
+| 第一次用 / 更新技能 / 程序卡住或报环境错误 | **`/zhongmiao-setup`** |
 
-# 把修前 / 修后截图拼成一张带图注的对比图
-node skills/zhongmiao-fix/scripts/compose_grid.mjs out.png "标题" 640 "before.png|修前" "after.png|修后"
+拿不准就用不带 `-no-browser` 的版本，它会多做一步浏览器检查，更稳。也可以直接用中文说要做什么（例如「帮我修 B07」），agent 会自己选。
 
-# 把 PR 拉到独立审核目录，打印版本、合并基点、试合并结果
-bash skills/zhongmiao-review/scripts/fetch_pr.sh ~/work/courseware-pro-mvp 1234
+### 修一个问题：`/zhongmiao-fix`
 
-# 对比 PR 版和合并基点版的题目单元：讲解与第 1 题概念不一致、示范等于原题、重复题、答案不一致
-node skills/zhongmiao-review/scripts/unit_review.mjs scan server/scripts/<单元目录> \
-  --ref pr/1234 --repo ~/work/courseware-pro-mvp --base-ref <合并基点SHA>
-```
-
----
-
-## 五、目录结构
+**你输入：**
 
 ```text
-install.sh               一键安装 / 更新 / 卸载（Claude Code、Codex）
-.claude-plugin/          Claude Code 插件与插件来源清单
+/zhongmiao-fix 修复 <编号>，任务表在 <任务表文件的位置>
+```
+
+任务表可以直接把 Excel 文件拖进对话框。只改脚本、测试或文档的问题，把命令换成 `/zhongmiao-fix-no-browser`。
+
+**它会做：**
+
+1. 读任务表，查这个问题是不是已经有人修过或正在修。有的话会停下来告诉你，请你换一个。
+2. 单独建一个工作目录，不碰你原来的代码。
+3. 找到问题出在哪，修好，跑测试证明改之前会失败、改之后能通过。
+4. `/zhongmiao-fix` 还会在三种屏幕宽度下打开页面检查，并截好修前修后的图。
+
+**最后你会拿到三段文字，然后它会问你：**
+
+```text
+1. 先 commit
+2. commit 并推送，然后你自己开 Draft PR
+3. 暂不提交
+```
+
+回复数字就行。选 2 之后：
+
+1. 打开它给你的链接；
+2. 把「PR 标题和正文」粘贴进去，把截图拖进去；
+3. 点 **Create draft pull request**；
+4. 把「发给 reviewer 的话」发给审核你的同学。**不要自己点 Ready for review**，那个按钮要由审核的人点。
+
+### 审核同学的 PR：`/zhongmiao-review`
+
+**你输入**（先在 GitHub 上打开这个 PR，把描述整段复制下来）：
+
+```text
+/zhongmiao-review 审核 PR <PR 号>。PR 描述如下：
+<把 PR 描述整段粘贴到这里>
+```
+
+只想快速看代码和测试时，把命令换成 `/zhongmiao-review-no-browser`。如果作者在 PR 下面有 CI 结果或别人的评论，也可以一起贴进来。
+
+**它会做：**
+
+1. 把这个 PR 的代码下载到单独的目录。
+2. 列出 PR 说自己修了什么，逐项核对：代码改得对不对，题目答案独立重算，讲解和第 1 题是不是同一个知识点，有没有重复题。
+3. 自己重新跑一遍测试。`/zhongmiao-review` 还会打开页面亲自操作一遍。
+
+**最后你会拿到一段可以直接转发的审核文字，然后：**
+
+- **通过**：把文字发给作者或贴到 PR 评论里，再在 PR 页面点 **Ready for review**。这一下就是你的互审签名，不用另外点 Approve。
+- **需修改**：把文字发给作者，**不要点** Ready for review。作者改完后，新开一个对话：
+
+```text
+/zhongmiao-review 复审 PR <PR 号>，作者更新后的说明如下：
+<粘贴新的说明>
+```
+
+### 更新技能、检查、卸载：`/zhongmiao-setup`
+
+```text
+/zhongmiao-setup 把众妙 QA 技能更新到最新版
+```
+
+```text
+/zhongmiao-setup 检查一下技能装好了没有
+```
+
+```text
+/zhongmiao-setup 卸载众妙 QA 技能
+```
+
+更新之后同样要**新开一个对话**才会用上新版本。
+
+### 一张图记住整个流程
+
+```text
+第一次：  粘贴安装那段话 → 新开对话 → /zhongmiao-setup 我的 GitHub 用户名是 …
+修问题：  新开对话 → /zhongmiao-fix 修复 <编号> → 拿到三段文字 → 回复 2 → 打开链接开 Draft PR → 把话发给 reviewer
+审 PR：   新开对话 → /zhongmiao-review 审核 PR <号> + 粘贴描述 → 拿到审核文字 → 通过就点 Ready for review
+更新：    新开对话 → /zhongmiao-setup 把众妙 QA 技能更新到最新版
+```
+
+---
+
+## 遇到问题
+
+| 情况 | 怎么办 |
+|---|---|
+| 打 `/zhongmiao` 没有弹出命令 | 确认是**新开**的对话；还不行就把第 1 步那段话再发一次 |
+| 用 Codex，斜杠命令没反应 | Codex 里用 `$` 开头：`$zhongmiao-setup`、`$zhongmiao-fix` |
+| 用的是 Claude Code 插件方式安装的 | 命令前面多一个前缀：`/zhongmiao-qa:zhongmiao-fix` |
+| agent 问「能不能运行这个命令」 | 点「允许」。这些命令只在你自己电脑上运行，改动之前它会先告诉你要做什么 |
+| 弹出 GitHub 登录窗口 | 用你自己的 GitHub 账号登录 |
+| 一直卡着不动 | 新开对话，输入 `/zhongmiao-setup 检查一下环境，看看为什么卡住` |
+| 提示没有权限访问教授的仓库 | 确认你已经在 GitHub 上接受了协作者邀请，再输入 `/zhongmiao-setup 重新检查环境` |
+| 用 Codex 跑含浏览器的版本 | Codex 没有内置浏览器面板，它会自动用无头浏览器截图，或者给你一个本地地址让你自己打开 |
+
+---
+
+## 这些技能不会做的事
+
+- 不打开 GitHub 网页：开 PR、点按钮都由你自己来做；需要 CI 结果时它会请你贴给它。
+- 不合并、不部署、不改正式题库，不替别人签审核。
+- 不经你同意不 commit、不推送，也不改你电脑上的其他东西。
+
+---
+
+## 给维护者（普通使用不用看）
+
+<details>
+<summary>目录结构、脚本、其他安装方式</summary>
+
+### 目录结构
+
+```text
+install.sh                       安装 / 更新 / 卸载（bash install.sh [claude|codex|both|uninstall]）
+.claude-plugin/                  Claude Code 插件与插件来源清单
 skills/
+  zhongmiao-setup/               环境准备、更新、卸载；scripts/setup_check.sh（只读检查）
   zhongmiao-fix/                 修 · 含浏览器复测（参考文件、脚本、本地测试页模板都在这里）
   zhongmiao-fix-no-browser/      修 · 不做浏览器复测（引用 zhongmiao-fix/ 里的参考文件和脚本）
   zhongmiao-review/              审 · 含浏览器复现（检查清单、文案模板、审核脚本）
@@ -150,17 +188,35 @@ skills/
   */agents/openai.yaml           Codex 里显示的名称和简介
 ```
 
----
+五个目录要一起安装：不做浏览器复测的两个版本和 setup 会用到同级目录里的文件。
 
-## 六、常见问题
+### 另一种安装方式：Claude Code 插件
 
-- **git status、Vite 或测试一直卡着不动（0% CPU）**：仓库放在 iCloud 同步的「桌面 / 文稿」里，并开了「优化 Mac 储存空间」时，文件会被移出本机。用 `find frontend/node_modules -flags +dataless | head` 检查；把仓库放到不同步的目录（例如 `~/work`），或在 Finder 里把该文件夹设为「始终保留在此 Mac 上」。
-- **新工作目录第一次起本地页面很慢**：Vite 第一次要预构建依赖，之后就快了。
-- **Codex 里的浏览器复测**：Codex 没有 Claude 桌面版那样的内置浏览器面板。含浏览器的版本会用仓库自带的 Playwright 做无头截图，或者起好本地页面后把地址给你自己打开。
-- **规则以仓库为准**：技能里的流程依据仓库当前的 `CLAUDE.md`、`docs/IRON_LAWS.md`、`docs/QA_PEER_REVIEW_GUIDE.md`；仓库规则更新后，以仓库为准。
+在 Claude Code 的对话框里输入（不是终端）：
 
----
+```text
+/plugin marketplace add Yed-13/zhongmiao-qa-skills
+/plugin install zhongmiao-qa@zhongmiao-qa-skills
+```
 
-## 七、维护
+插件方式装的命令带前缀，例如 `/zhongmiao-qa:zhongmiao-fix`。更新：`/plugin marketplace update zhongmiao-qa-skills`；卸载：`/plugin uninstall zhongmiao-qa@zhongmiao-qa-skills`。
 
-发现流程变了、或者某一步总出错，直接改对应的 `skills/*/SKILL.md` 或 `references/*.md` 并提 PR。技能内容里不放个人信息、账号和具体任务记录，示例里的编号和数字只用来说明格式。
+### 技能里用到的脚本（agent 自己会运行）
+
+| 脚本 | 作用 |
+|---|---|
+| `zhongmiao-setup/scripts/setup_check.sh [仓库]` | 只读检查环境，每项输出 OK / FIX / WARN |
+| `zhongmiao-fix/scripts/read_issue_sheet.py 表.xlsx --code <编号>` | 连底色一起读任务表 |
+| `zhongmiao-fix/scripts/check_issue_status.sh <仓库> <编号>` | 用 git 查 main 和最近 300 个 PR 里是否已有人修 |
+| `zhongmiao-fix/scripts/new_task_worktree.sh <仓库> <任务名>` | 为一个问题建独立 worktree |
+| `zhongmiao-fix/scripts/compose_grid.mjs out.png "标题" 640 "a.png\|图注" …` | 拼修前修后对比图 |
+| `zhongmiao-review/scripts/fetch_pr.sh <仓库> <PR号>` | 把 PR 拉到只读审核目录，打印版本和试合并结果 |
+| `zhongmiao-review/scripts/unit_review.mjs dump\|scan …` | 打印题目单元 / 扫描讲解与第 1 题概念不一致、示范等于原题、重复题、答案不一致 |
+
+### 维护规则
+
+- 技能里的流程以仓库当前的 `CLAUDE.md`、`docs/IRON_LAWS.md`、`docs/QA_PEER_REVIEW_GUIDE.md` 为准。
+- 技能内容里不放个人信息、账号和具体任务记录，示例里的编号和数字只用来说明格式。
+- 改完先在本地用 `bash install.sh` 装一次，新开对话试一遍再提交。
+
+</details>

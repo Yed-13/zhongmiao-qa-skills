@@ -6,7 +6,7 @@
     {
       "name": "zhongmiao-qa",
       "source": "./",
-      "description": "修 + 审，各含「浏览器复测 / 不做浏览器复测」两个版本"
+      "description": "修 + 审（各含浏览器复测 / 不做浏览器复测两个版本）+ 环境准备"
     }
   ]
 }
